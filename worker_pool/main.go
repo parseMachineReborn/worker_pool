@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 )
 
-type workerPool[T any] struct {
+type WorkerPool[T any] struct {
 	workersNum int
 	tasksCh    chan func() T
 	resCh      chan T
@@ -15,8 +15,8 @@ type workerPool[T any] struct {
 	isClosed   atomic.Bool
 }
 
-func NewWorkerPool[T any](workersNum int) *workerPool[T] {
-	return &workerPool[T]{
+func NewWorkerPool[T any](workersNum int) *WorkerPool[T] {
+	return &WorkerPool[T]{
 		workersNum: workersNum,
 		tasksCh:    make(chan func() T),
 		resCh:      make(chan T),
@@ -25,7 +25,7 @@ func NewWorkerPool[T any](workersNum int) *workerPool[T] {
 	}
 }
 
-func (w *workerPool[T]) Start(ctx context.Context) (<-chan T, error) {
+func (w *WorkerPool[T]) Start(ctx context.Context) (<-chan T, error) {
 	if w.isClosed.Load() {
 		return nil, ErrPoolIsAlreadyInitialized
 	}
@@ -61,7 +61,7 @@ func (w *workerPool[T]) Start(ctx context.Context) (<-chan T, error) {
 	return w.resCh, nil
 }
 
-func (w *workerPool[T]) Stop() error {
+func (w *WorkerPool[T]) Stop() error {
 	if w.isClosed.Swap(true) {
 		return ErrPoolIsClosed
 	}
@@ -74,7 +74,7 @@ func (w *workerPool[T]) Stop() error {
 	return nil
 }
 
-func (w *workerPool[T]) AddTask(task func() T) error {
+func (w *WorkerPool[T]) AddTask(task func() T) error {
 	if w.isClosed.Load() {
 		return ErrPoolIsClosed
 	}
